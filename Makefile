@@ -1,6 +1,6 @@
 # Default to the read only token - the read/write token will be present on GitHub Actions
 # It's set as a secure environment variable in the build.yml file
-PACTICIPANT := "pactflow-example-consumer-java-junit"
+PACTICIPANT := "pactflow-example-consumer-java-graphql"
 GITHUB_WEBHOOK_UUID := "654aff47-0269-4b9f-aaca-2f83ff3cd772"
 PACT_CLI="docker run --rm -v ${PWD}:${PWD} -e PACT_BROKER_BASE_URL -e PACT_BROKER_TOKEN pactfoundation/pact-cli:latest"
 
