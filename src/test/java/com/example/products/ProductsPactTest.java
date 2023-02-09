@@ -4,6 +4,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import au.com.dius.pact.consumer.MockServer;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
+import graphql.ExecutionResult;
+import graphql.GraphQL;
+import graphql.schema.GraphQLSchema;
+import graphql.schema.StaticDataFetcher;
+import graphql.schema.idl.RuntimeWiring;
+import graphql.schema.idl.SchemaGenerator;
+import graphql.schema.idl.SchemaParser;
+import graphql.schema.idl.TypeDefinitionRegistry;
+import static graphql.schema.idl.RuntimeWiring.newRuntimeWiring;
+
 import au.com.dius.pact.consumer.dsl.PactDslJsonArray;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
@@ -12,29 +22,45 @@ import au.com.dius.pact.consumer.junit5.PactTestFor;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(PactConsumerTestExt.class)
-@PactTestFor(providerName = "pactflow-example-provider-springboot")
+@PactTestFor(providerName = "pactflow-example-provider-java-graphql")
 public class ProductsPactTest {
 
-  @Pact(consumer="pactflow-example-consumer-java-junit")
+  @Pact(consumer="pactflow-example-consumer-java-graphql")
   public RequestResponsePact getProduct(PactDslWithProvider builder) {
 
     PactDslJsonBody body = new PactDslJsonBody();
-    body.stringType("name", "product name");
-    body.stringType("type", "product series");
-    body.stringType("id", "5cc989d0-d800-434c-b4bb-b1268499e850");
+    body
+      .object("data")
+        .object("product")
+          .stringType("id", "10")
+          .stringType("name", "product name")
+          .stringType("type", "product series")
+        .closeObject()
+      .closeObject();
 
+    String query = """
+product(id: "10") {
+  id
+  name
+  type
+}                
+    """;          
       return builder
         .given("a product with ID 10 exists")
-        .uponReceiving("a request to get a product")
-          .path("/product/10")
-          .method("GET")
+        .uponReceiving("a request to get a product via GraphQL")
+          .path("/graphql")
+          .method("POST")
+          .body(query)
         .willRespondWith()
+          .headers(Map.of("content-type", "application/json"))
           .status(200)
           .body(body)
         .toPact();
@@ -42,34 +68,9 @@ public class ProductsPactTest {
 
   @PactTestFor(pactMethod = "getProduct")
   @Test
-  public void testGetProduct(MockServer mockServer) throws IOException {
+  public void testGetProduct(MockServer mockServer) throws IOException, URISyntaxException {
     Product product = new ProductClient().setUrl(mockServer.getUrl()).getProduct("10");
 
-    assertThat(product.getId(), is("5cc989d0-d800-434c-b4bb-b1268499e850"));
-  }
-
-  @Pact(consumer="pactflow-example-consumer-java-junit")
-  public RequestResponsePact getProducts(PactDslWithProvider builder) {
-      return builder
-          .given("a product with ID 10 exists")
-          .uponReceiving("a request to get all products")
-              .path("/products")
-              .method("GET")
-          .willRespondWith()
-              .status(200)
-              .body(PactDslJsonArray.arrayEachLike()
-                .stringType("name", "product name")
-                .stringType("type", "product series")
-                .stringType("id", "5cc989d0-d800-434c-b4bb-b1268499e850")
-                .closeObject())
-          .toPact();
-  }
-
-  @PactTestFor(pactMethod = "getProducts")
-  @Test
-  public void testGetProducts(MockServer mockServer) throws IOException {
-    List<Product> products = new ProductClient().setUrl(mockServer.getUrl()).getProducts();
-
-    assertThat(products.get(0).getId(), is("5cc989d0-d800-434c-b4bb-b1268499e850"));
+    assertThat(product.getId(), is("10"));
   }
 }

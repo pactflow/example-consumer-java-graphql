@@ -1,14 +1,21 @@
 package com.example.products;
 
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
+// uses the query string approach to fetch data
+// see the alternative client ProductClientPost for the HTTP POST method
 public class ProductClient {
   private String url;
 
@@ -18,30 +25,24 @@ public class ProductClient {
     return this;
   }
 
-  public Product getProduct(String id) throws IOException {
-    return (Product) Request.Get(this.url + "/product/" + id)
+  public Product getProduct(String id) throws IOException, URISyntaxException {
+    String query = """
+product(id: "%s") {
+  id
+  name
+  type
+}
+    """.formatted(id);
+
+    return (Product) Request.Post(this.url + "/graphql")
+      .bodyString(query, ContentType.TEXT_PLAIN)
       .addHeader("Accept", "application/json")
       .execute().handleResponse(httpResponse -> {
         try {
           ObjectMapper mapper = new ObjectMapper();
-          Product product = mapper.readValue(httpResponse.getEntity().getContent(), Product.class);
+          Response response = mapper.readValue(httpResponse.getEntity().getContent(), Response.class);
+          return response.getData().getProduct();
 
-          return product;
-        } catch (JsonMappingException e) {
-          throw new IOException(e);
-        }
-      });
-  }
-
-  public List<Product> getProducts() throws IOException {
-    return (List<Product>) Request.Get(this.url + "/products")
-      .addHeader("Accept", "application/json")
-      .execute().handleResponse(httpResponse -> {
-        try {
-          ObjectMapper mapper = new ObjectMapper();
-          List<Product> products = mapper.readValue(httpResponse.getEntity().getContent(), new TypeReference<List<Product>>(){});
-
-          return products;
         } catch (JsonMappingException e) {
           throw new IOException(e);
         }
