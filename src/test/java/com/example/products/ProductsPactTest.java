@@ -46,7 +46,23 @@ public class ProductsPactTest {
         .closeObject()
       .closeObject();
 
-      String query = "{\"query\":\"{\n  product(id: 10) {id \n name \n type }}\"}";
+    // NOTE: GraphQL uses a JSON formatted payload to send queries over the wire
+    //       You should familiarise yourself with the structure of this and consider
+    //       creating a utility function to reduce boilerplate and aid readibility in your tests.
+    //       A common cause of test failures with GraphQL is the fact that queries are
+    //       contained within a "query" property in the JSON, and any formatting differences
+    //       between the expectation (below) and how your API client actually sends a request 
+    //       will result in a failure (the mock server will return an HTTP 500)
+    final String query = """
+      {
+      "query": "{
+        product(id: 10) {
+          id
+          name
+          type
+        }}
+      "}
+      """;
 
     return builder
       .given("a product with ID 10 exists")

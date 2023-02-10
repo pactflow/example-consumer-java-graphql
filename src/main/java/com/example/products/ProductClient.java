@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-// uses the query string approach to fetch data
-// see the alternative client ProductClientPost for the HTTP POST method
 public class ProductClient {
   private String url;
 
@@ -21,7 +19,16 @@ public class ProductClient {
   }
 
   public Product getProduct(String id) throws IOException, URISyntaxException {
-    String query = "{\"query\":\"{\n  product(id: %s) {id \n name \n type }}\"}".formatted(id);
+    final String query = """
+      {
+      "query": "{
+        product(id: %s) {
+          id
+          name
+          type
+        }}
+      "}
+      """.formatted(id);    
 
     return (Product) Request.Post(this.url + "/graphql")
       .bodyString(query, ContentType.APPLICATION_JSON)
