@@ -26,6 +26,7 @@ See also the full [Pactflow CI/CD Workshop](https://docs.pactflow.io/docs/worksh
 - A [PactFlow](https://pactflow.io) account
 - A [read/write API Token](https://docs.pactflow.io/#configuring-your-api-token) from your PactFlow account
 - Java 19+ installed
+- A linux based environment (e.g. MacOSX, Linux, Windows Subsystem for Linux)
 
 ## Usage
 
