@@ -1,18 +1,13 @@
 package com.example.products;
 
 import org.apache.http.client.fluent.Request;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
-import org.apache.http.util.EntityUtils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 
 // uses the query string approach to fetch data
 // see the alternative client ProductClientPost for the HTTP POST method
@@ -26,16 +21,10 @@ public class ProductClient {
   }
 
   public Product getProduct(String id) throws IOException, URISyntaxException {
-    String query = """
-product(id: "%s") {
-  id
-  name
-  type
-}
-    """.formatted(id);
+    String query = "{\"query\":\"{\n  product(id: %s) {id \n name \n type }}\"}".formatted(id);
 
     return (Product) Request.Post(this.url + "/graphql")
-      .bodyString(query, ContentType.TEXT_PLAIN)
+      .bodyString(query, ContentType.APPLICATION_JSON)
       .addHeader("Accept", "application/json")
       .execute().handleResponse(httpResponse -> {
         try {

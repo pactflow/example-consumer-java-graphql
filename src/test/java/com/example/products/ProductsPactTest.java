@@ -46,25 +46,21 @@ public class ProductsPactTest {
         .closeObject()
       .closeObject();
 
-    String query = """
-product(id: "10") {
-  id
-  name
-  type
-}                
-    """;          
-      return builder
-        .given("a product with ID 10 exists")
-        .uponReceiving("a request to get a product via GraphQL")
-          .path("/graphql")
-          .method("POST")
-          .body(query)
-        .willRespondWith()
-          .headers(Map.of("content-type", "application/json"))
-          .status(200)
-          .body(body)
-        .toPact();
-    }
+      String query = "{\"query\":\"{\n  product(id: 10) {id \n name \n type }}\"}";
+
+    return builder
+      .given("a product with ID 10 exists")
+      .uponReceiving("a request to get a product via GraphQL")
+        .path("/graphql")
+        .headers(Map.of("content-type", "application/json"))
+        .method("POST")
+        .body(query)
+      .willRespondWith()
+        .headers(Map.of("content-type", "application/json"))
+        .status(200)
+        .body(body)
+      .toPact();
+  }
 
   @PactTestFor(pactMethod = "getProduct")
   @Test
