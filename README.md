@@ -1,4 +1,4 @@
-# Example Java Junit Consumer
+# Example Java GraphQL Consumer
 
 ![Build](https://github.com/pactflow/example-consumer-java-junit/workflows/Build/badge.svg)
 
