@@ -2,19 +2,9 @@ package com.example.products;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import au.com.dius.pact.consumer.MockServer;
+import au.com.dius.pact.core.model.PactSpecVersion;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
-import graphql.ExecutionResult;
-import graphql.GraphQL;
-import graphql.schema.GraphQLSchema;
-import graphql.schema.StaticDataFetcher;
-import graphql.schema.idl.RuntimeWiring;
-import graphql.schema.idl.SchemaGenerator;
-import graphql.schema.idl.SchemaParser;
-import graphql.schema.idl.TypeDefinitionRegistry;
-import static graphql.schema.idl.RuntimeWiring.newRuntimeWiring;
-
-import au.com.dius.pact.consumer.dsl.PactDslJsonArray;
 import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
@@ -23,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -78,7 +67,7 @@ public class ProductsPactTest {
       .toPact();
   }
 
-  @PactTestFor(pactMethod = "getProduct")
+  @PactTestFor(pactMethod = "getProduct", pactVersion = PactSpecVersion.V3)
   @Test
   public void testGetProduct(MockServer mockServer) throws IOException, URISyntaxException {
     Product product = new ProductClient().setUrl(mockServer.getUrl()).getProduct("10");
