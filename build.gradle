@@ -1,7 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '4.0.6'
 	id 'java'
-  id "au.com.dius.pact" version "4.7.0"
+  id "au.com.dius.pact" version "4.7.1"
   id "io.freefair.lombok" version "9.5.0"
 }
 
